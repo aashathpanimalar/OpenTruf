@@ -292,9 +292,8 @@ import OtpComponent from './OtpComponent';
 import ForgotPassword from './ForgotPassword';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/api';
 
-const Login = ({fetchUser}) => {
+const Login = () => {
   const [step, setStep] = useState(1);
   const [emailId, setEmailId] = useState('');
   const navigate = useNavigate();
@@ -389,8 +388,10 @@ const Login = ({fetchUser}) => {
     const { emailId, password } = loginData;
 
     try {
-      const response = await api.post('/api/login', { emailId, password });
-      fetchUser();
+      const response = await axios.post('http://localhost:5000/api/login', { emailId, password });
+      // alert('Login successful');
+      navigate('/Ecommerce');
+      localStorage.setItem('loggedInUser', emailId);
       setLoginData({ emailId: '', password: '' });
     } catch (error) {
       console.error('Error logging in:', error.message);

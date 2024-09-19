@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../api/api';
 
-function Navbar({ cartItemCount, fetchUser }) {
+function Navbar({ cartItemCount }) {
   const navigate = useNavigate();
   const handleLogout = () => {
-    api.post('/api/logout')
-    fetchUser()
+    localStorage.removeItem('loggedInUser'); // Optionally remove user data from localStorage
+    localStorage.removeItem('token'); 
+    navigate('/'); // Navigate to the main page
   };
   return (
     <div className="navbar">

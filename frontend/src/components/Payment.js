@@ -19,51 +19,52 @@ const Payment = () => {
     const selectedAddress = addresses[0] || {};
     const cartItemsArray = JSON.parse(localStorage.getItem('cartItemsArray')) || [];
     const loggedInUser = localStorage.getItem('loggedInUser');
-    
+
+
     const order = {
-        products: cartItemsArray.map((item) => ({
-            title: item.title,
-            quantity: item.quantity,
-            price: item.price * item.quantity,
-        })),
-        totalQuantity: Object.values(cart).reduce((a, b) => a + b, 0),
-        totalPrice: totalCost,
-        address: selectedAddress,
-        paymentMethod: selectedPaymentMethod,
-        emailId: loggedInUser,
+      products: cartItemsArray.map((item) => ({
+        title: item.title,
+        quantity: item.quantity,
+        price: item.price * item.quantity,
+      })),
+      totalQuantity: Object.values(cart).reduce((a, b) => a + b, 0),
+      totalPrice: totalCost,
+      address: selectedAddress,
+      paymentMethod: selectedPaymentMethod,
+      emailId: loggedInUser,
+
     };
 
     console.log('Order data being sent to the server:', order);
 
-    // Get the token from localStorage
-    const token = localStorage.getItem('authToken');
-
     try {
-        // Send the request with the token in the headers
-        await axios.post('http://localhost:5000/api/place-order', order, {
-            headers: {
-                'Authorization': `Bearer ${token}`, // Include the token here
-            }
-        });
-        
-        localStorage.removeItem('cart');
-        localStorage.removeItem('selectedAddress');
-        localStorage.removeItem('order');
-        localStorage.removeItem('cartItemsArray');
+      await axios.post('http://localhost:5000/api/place-order', order);
+      // localStorage.setItem('order', JSON.stringify(order));
+      localStorage.removeItem('cart');
+      localStorage.removeItem('selectedAddress');
+      localStorage.removeItem('order');
+      localStorage.removeItem('cartItemsArray');
+      // localStorage.removeItem('addresses');
 
-        alert('Order placed successfully');
-        navigate('/Ecommerce');
-        window.location.reload();
+      alert('Order placed successfully');
+      navigate('/Ecommerce');
+      window.location.reload();
     } catch (error) {
-        console.error('Error placing order:', error);
+      console.error('Error placing order:', error);
 
-        if (error.response) {
-            console.error('Response data:', error.response.data);
-            console.error('Response status:', error.response.status);
-        }
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+      } else if (error.request) {
+        console.error('Request data:', error.request);
+      } else {
+        console.error('Error message:', error.message);
+      }
+
+      alert('Failed to place order');
     }
-};
-
+  };
 
 
   const paymentMethods = [

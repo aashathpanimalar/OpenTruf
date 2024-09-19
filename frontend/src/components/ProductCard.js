@@ -21,43 +21,37 @@ function ProductCard({ product, onAddToCart, onRemoveFromCart }) {
   const updateCart = (newQuantity) => {
     let savedCart;
     try {
-        savedCart = JSON.parse(localStorage.getItem('cart')) || [];
+      savedCart = JSON.parse(localStorage.getItem('cart')) || [];
     } catch (e) {
-        savedCart = [];
+      savedCart = [];
     }
 
     const existingProductIndex = savedCart.findIndex(item => item.title === product.title);
 
     if (newQuantity === 0) {
-        if (existingProductIndex !== -1) {
-            savedCart.splice(existingProductIndex, 1);
-        }
+      if (existingProductIndex !== -1) {
+        savedCart.splice(existingProductIndex, 1);
+      }
     } else {
-        if (existingProductIndex !== -1) {
-            savedCart[existingProductIndex].quantity = newQuantity;
-        } else {
-            savedCart.push({ title: product.title, quantity: newQuantity });
-        }
+      if (existingProductIndex !== -1) {
+        savedCart[existingProductIndex].quantity = newQuantity;
+      } else {
+        savedCart.push({ title: product.title, quantity: newQuantity });
+      }
     }
 
     localStorage.setItem('cart', JSON.stringify(savedCart));
-
-    // Get the token from localStorage
-    const token = localStorage.getItem('authToken');
-
-    // Send the updated cart to the backend with the token in the headers
+    // Send the updated cart to the backend
     fetch('http://localhost:5000/api/cart', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`, // Include the token here
-        },
-        body: JSON.stringify(savedCart),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(savedCart),
     })
-    .then(response => response.json())
-    .catch(error => console.error('Error updating cart:', error));
-};
-
+      .then(response => response.json())
+      .catch(error => console.error('Error updating cart:', error));
+  };
 
   const handleAddToCart = () => {
     const newQuantity = quantity + 1;

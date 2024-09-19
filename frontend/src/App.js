@@ -10,39 +10,46 @@
 // import Address from './components/Address';
 // import Payment from './components/Payment';
 // import Login from './components/Login';
-// import api from './api/api';
+
+// const PrivateRoute = ({ children }) => {
+//   const [isValidToken, setIsValidToken] = useState(null);
+//   const token = localStorage.getItem('token');
+
+//   useEffect(() => {
+//     const verifyToken = async () => {
+//       if (token) {
+//         try {
+//           const response = await axios.post('/api/verifyToken', { token });
+//           if (response.status === 200) {
+//             setIsValidToken(true);
+//           } else {
+//             setIsValidToken(false);
+//           }
+//         } catch (error) {
+//           console.error('Token verification failed:', error);
+//           setIsValidToken(false);
+//         }
+//       } else {
+//         setIsValidToken(false);
+//       }
+//     };
+
+//     verifyToken();
+//   }, [token]);
+
+//   if (isValidToken === null) {
+//     // While token is being verified, show loading or skeleton screen
+//     return <div>Loading...</div>;
+//   }
+
+//   return isValidToken ? children : <Navigate to="/" />;
+// };
 
 
 // function App() {
 //   const [cartItems, setCartItems] = useState({});
 //   const [address, setAddress] = useState(null);
 //   const [paymentMethod, setPaymentMethod] = useState(null);
-//   const [loggedIn, setLoggedIn] = useState(false);
-
-// const fetchUser = async () => {
-//   try {
-//     const response = await api.get('/user');
-//     if (response.data) {
-//       setLoggedIn(true)
-//     }
-//   }
-//   catch (err) {
-//     console.log('User Unauthorized..');
-//   }
-// }
-
-// useEffect(() => {
-//   !loggedIn && fetchUser()
-// }, [loggedIn])
-
-// const handleLogin = async (emailId, password) => {
-//   try {
-//     await api.post('/api/login', { emailId, password });
-//     fetchUser()
-//   } catch (error) {
-//     console.error('Login error:', error);
-//   }
-// };
 
 //   const handleAddToCart = (product) => {
 //     setCartItems((prevItems) => {
@@ -68,7 +75,7 @@
 //       alert('Please complete the address and payment method.');
 //       return;
 //     }
-
+    
 //     const cartItemsArray = Object.entries(cartItems).map(([title, quantity]) => ({
 //       title,
 //       quantity,
@@ -105,7 +112,7 @@
 //                   <Route
 //                     path="/Ecommerce"
 //                     element={
-                      
+//                       <PrivateRoute>
 //                         <>
 //                           <Navbar cartItemCount={Object.values(cartItems).reduce((a, b) => a + b, 0)} />
 //                           <div id="body1">
@@ -116,31 +123,31 @@
 //                             <Footer />
 //                           </fieldset>
 //                         </>
-                      
+//                       </PrivateRoute>
 //                     }
 //                   />
 //                   <Route
 //                     path="/cart"
 //                     element={
-                      
+//                       <PrivateRoute>
 //                         <Cart cartItems={cartItems} products={products} onRemoveFromCart={handleRemoveFromCart} />
-                      
+//                       </PrivateRoute>
 //                     }
 //                   />
 //                   <Route
 //                     path="/address"
 //                     element={
-                      
+//                       <PrivateRoute>
 //                         <Address onAddressSelect={setAddress} />
-                      
+//                       </PrivateRoute>
 //                     }
 //                   />
 //                   <Route
 //                     path="/payment"
 //                     element={
-                      
+//                       <PrivateRoute>
 //                         <Payment onPaymentMethodSelect={setPaymentMethod} onProceedToPayment={handleProceedToPayment} />
-                      
+//                       </PrivateRoute>
 //                     }
 //                   />
 //                 </Routes>
@@ -155,17 +162,18 @@
 
 // export default App;
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
-import { products } from './components/Products';
+import Navbar from './components/Navbar';
+import Category from './components/Category';
+import Products, { products } from './components/Products';
+import Footer from './components/Footer';
 import Cart, { TotalCostContext } from './components/Cart';
 import Address from './components/Address';
 import Payment from './components/Payment';
 import Login from './components/Login';
-import api from './api/api';
-import Ecommerce from './components/Ecommerce';
 
 function App() {
   const [cartItems, setCartItems] = useState({});
@@ -173,34 +181,28 @@ function App() {
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
 
-
-  const fetchUser = async () => {
-    try {
-      const response = await api.get('/api/user');
-      if (response.data) {
-        setLoggedIn(true)
-      }else{
-        setLoggedIn(false);
-      }
-    }
-    catch (err) {
-      setLoggedIn(false);
-      console.log('User Unauthorized..');
-    }
-  }
-
-  useEffect(() => {
-    !loggedIn && fetchUser()
-  }, [loggedIn])
-
-
   const handleLogin = async (emailId, password) => {
     try {
-      await api.post('/api/login', { emailId, password });
-      fetchUser()
+      const response = await axios.post('/api/login', { emailId, password });
+      const { token } = response.data;
+      localStorage.setItem('token', token);
+      setLoggedIn(true);
     } catch (error) {
       console.error('Login error:', error);
+      // Handle login error (show message to user, etc.)
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setLoggedIn(false);
+  };
+
+  const handleAddToCart = (product) => {
+    setCartItems((prevItems) => {
+      const newCart = { ...prevItems, [product.title]: (prevItems[product.title] || 0) + 1 };
+      return newCart;
+    });
   };
 
   const handleRemoveFromCart = (product) => {
@@ -220,7 +222,7 @@ function App() {
       alert('Please complete the address and payment method.');
       return;
     }
-
+    
     const cartItemsArray = Object.entries(cartItems).map(([title, quantity]) => ({
       title,
       quantity,
@@ -253,16 +255,48 @@ function App() {
             <fieldset id="main">
               <fieldset id="main2">
                 <Routes>
-                  {loggedIn ?
-                    <>
-                    <Route path="/" element={<Ecommerce setLoggedIn={setLoggedIn} setCartItems={setCartItems} cartItems={cartItems} fetchUser={fetchUser} handleRemoveFromCart={handleRemoveFromCart} />} />
-                      <Route path="/cart" element={<Cart cartItems={cartItems} products={products} onRemoveFromCart={handleRemoveFromCart} />}/>
-                      <Route path="/address" element={<Address onAddressSelect={setAddress} />}/>
-                      <Route path="/payment" element={<Payment onPaymentMethodSelect={setPaymentMethod} onProceedToPayment={handleProceedToPayment} />}/>
-                    </>
-                  :
-                  <Route path="/" element={<Login onLogin={handleLogin} fetchUser={fetchUser} />} />
-                  }
+                  <Route path="/" element={<Login onLogin={handleLogin} />} />
+                  <Route
+                    path="/Ecommerce"
+                    element={
+                      
+                        <>
+                          <Navbar cartItemCount={Object.values(cartItems).reduce((a, b) => a + b, 0)} onLogout={handleLogout} />
+                          <div id="body1">
+                            <Category />
+                            <Products onAddToCart={handleAddToCart} cartItems={cartItems} onRemoveFromCart={handleRemoveFromCart} />
+                          </div>
+                          <fieldset id="foot">
+                            <Footer />
+                          </fieldset>
+                        </>
+                      
+                    }
+                  />
+                  <Route
+                    path="/cart"
+                    element={
+                      
+                        <Cart cartItems={cartItems} products={products} onRemoveFromCart={handleRemoveFromCart} />
+                      
+                    }
+                  />
+                  <Route
+                    path="/address"
+                    element={
+                      
+                        <Address onAddressSelect={setAddress} />
+                      
+                    }
+                  />
+                  <Route
+                    path="/payment"
+                    element={
+                      
+                        <Payment onPaymentMethodSelect={setPaymentMethod} onProceedToPayment={handleProceedToPayment} />
+                      
+                    }
+                  />
                 </Routes>
               </fieldset>
             </fieldset>

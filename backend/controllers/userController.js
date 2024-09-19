@@ -1,5 +1,3 @@
-const { generateAccessToken, generateRefreshToken } = require('../middleware/middleware');
-
 //controllers/userController.js
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
@@ -61,10 +59,6 @@ const generateOTP = async (req, res) => {
 // Verify OTP
 const verifyOTP = (req, res) => {
   const { emailId, otp } = req.body;
-  console.log(emailId, otp);
-  console.log(otps);
-  
-  
   if (otps[emailId] === otp) {
     delete otps[emailId];
     res.status(200).json({ message: 'OTP verified successfully' });
@@ -106,51 +100,34 @@ const registerUser = async (req, res) => {
   }
 };
 
-// ============> Credential login <===========
+// Login user
 const loginUser = async (req, res) => {
+  const { emailId, password } = req.body;
+
   try {
-    console.log(req.body.emailId)
-    const { emailId, password } = req.body;
-
+    // Find the user by emailId
     const user = await User.findOne({ where: { emailId } });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid Credentials' });
+    if (user) {
+      // Compare the provided password with the stored hashed password
+      const match = await bcrypt.compare(password, user.password);
+      if (match) {
+        res.status(200).json({ message: 'Login successful' });
+      } else {
+        res.status(400).json({ error: 'Email ID and password do not match' });
+      }
+    } else {
+      res.status(400).json({ error: 'Email ID and password do not match' });
     }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid Credentials' });
-    }
-
-    // Create a payload for the JWT token
-    const tokenPayload = { id: user._id, emailId: user.emailId };
-    const accessToken = generateAccessToken(tokenPayload);
-    const refreshToken = generateRefreshToken(tokenPayload);
-
-    console.log(accessToken);
-
-    // Set cookies
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      maxAge: 3600000, // 1 hour
-      secure: true,   // Set to true in production with HTTPS
-      sameSite: 'None' // Set 'SameSite' to 'None' for cross-site cookies
-    });
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      maxAge: 259200000, // 30 days
-      secure: true,   // Set to true in production with HTTPS
-      sameSite: 'None' // Set 'SameSite' to 'None' for cross-site cookies
-    });
-
-    res.json({ message: 'Login successful' });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Server Error' });
+    console.error('Error logging in user:', error.message);
+    res.status(500).json({ error: 'An error occurred while logging in' });
   }
 };
 
 
+
+
+// Check if the email exists, for both registration and forgot password
 const checkEmail = async (req, res) => {
   const { emailId, forForgotPassword } = req.body;
 
@@ -264,25 +241,6 @@ const placeOrder = async (req, res) => {
 };
 
 
-const logout = async (req, res) => {
-  res.cookie('accessToken', null, {
-    httpOnly: true,
-    maxAge: -1, // Immediate expiration
-    secure: true,   // Set to true in production with HTTPS
-    sameSite: 'None' // Set 'SameSite' to 'None' for cross-site cookies
-  });
-  res.cookie('refreshToken', null, {
-    httpOnly: true,
-    maxAge: -1,
-    secure: true,   // Set to true in production with HTTPS
-    sameSite: 'None' // Set 'SameSite' to 'None' for cross-site cookies
-  });
-  res.json({ message: 'Logout successful' });
-};
-
-
-
-
 module.exports = {
   generateOTP,
   verifyOTP,
@@ -292,5 +250,4 @@ module.exports = {
   changePassword,
   placeOrder,
   updateCart,
-  logout
 };

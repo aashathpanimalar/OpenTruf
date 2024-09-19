@@ -2,7 +2,6 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const db = require('./models'); // Import the models
 const userRoutes = require('./routes/userRoutes');
@@ -12,15 +11,10 @@ const app = express();
 const port = 5000;
 
 // Enable CORS for all routes
-app.use(cors({
-  origin: 'http://localhost:3000', // Your frontend URL
-  credentials: true, // Allow cookies to be sent
-}));
+app.use(cors());
 
 // Use body-parser to parse JSON bodies
 app.use(bodyParser.json());
-
-app.use(cookieParser());
 
 // Sync database models
 const syncDatabase = async () => {
