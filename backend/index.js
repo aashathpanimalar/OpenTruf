@@ -11,7 +11,9 @@ const app = express();
 const port = 5000;
 
 // Enable CORS for all routes
-app.use(cors());
+// app.use(cors());
+app.use(cors({ origin: 'https://pepper-paradise.vercel.app' }));
+
 
 // Use body-parser to parse JSON bodies
 app.use(bodyParser.json());
