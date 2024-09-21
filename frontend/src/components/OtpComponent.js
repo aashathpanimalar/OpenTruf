@@ -14,7 +14,7 @@ const OtpComponent = ({ emailId, setOtp, setStep, setIsEmailVerified, setIsEmail
     setLoading(true);
 
     try {
-      const otpResponse = await axios.post('http://localhost:5000/api/generate-otp', { emailId });
+      const otpResponse = await axios.post('https://pepper-paradise-9iol.onrender.com/api/generate-otp', { emailId });
       alert(otpResponse.data.message);
       setOtpSent(true);
       setIsEmailReadOnly(true); // Make email field read-only after OTP is sent
@@ -29,7 +29,7 @@ const OtpComponent = ({ emailId, setOtp, setStep, setIsEmailVerified, setIsEmail
   const handleVerifyOtp = async () => {
     setLoading(true);
     try {
-      const otpVerifyResponse = await axios.post('http://localhost:5000/api/verify-otp', { emailId, otp: otpInput });
+      const otpVerifyResponse = await axios.post('https://pepper-paradise-9iol.onrender.com/api/verify-otp', { emailId, otp: otpInput });
       setOtp('');
       setOtpError('');
       setStep(2); // Move to step 2 after OTP verification
