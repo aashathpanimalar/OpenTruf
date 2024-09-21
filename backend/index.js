@@ -13,7 +13,6 @@ const port = 5000;
 // Enable CORS for all routes
 // app.use(cors());
 app.use(cors({ origin: 'https://pepper-paradise.vercel.app' }));
-app.use(cors({ origin: 'https://wonderful-syrniki-a41fad.netlify.app' }));
 
 // Use body-parser to parse JSON bodies
 app.use(bodyParser.json());
