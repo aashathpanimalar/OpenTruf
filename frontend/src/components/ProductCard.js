@@ -42,7 +42,7 @@ function ProductCard({ product, onAddToCart, onRemoveFromCart }) {
 
     localStorage.setItem('cart', JSON.stringify(savedCart));
     // Send the updated cart to the backend
-    fetch('http://localhost:5000/api/cart', {
+    fetch('https://pepper-paradise-9iol.onrender.com/api/cart', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
