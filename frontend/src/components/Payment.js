@@ -38,7 +38,7 @@ const Payment = () => {
     console.log('Order data being sent to the server:', order);
 
     try {
-      await axios.post('http://localhost:5000/api/place-order', order);
+      await axios.post('https://pepper-paradise-9iol.onrender.com/api/place-order', order);
       // localStorage.setItem('order', JSON.stringify(order));
       localStorage.removeItem('cart');
       localStorage.removeItem('selectedAddress');
