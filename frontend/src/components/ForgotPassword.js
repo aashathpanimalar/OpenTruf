@@ -32,7 +32,7 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/check-email', { emailId, forForgotPassword: true });
+      const response = await axios.post('https://pepper-paradise-9iol.onrender.com/api/check-email', { emailId, forForgotPassword: true });
       if (response.data.message === 'OTP sent to email for password reset') {
         setOtpSent(true);
       } else {
@@ -51,7 +51,7 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/verify-otp', { emailId, otp });
+      const response = await axios.post('https://pepper-paradise-9iol.onrender.com/api/verify-otp', { emailId, otp });
       if (response.data.message === 'OTP verified successfully') {
         setOtpVerified(true);
       } else {
@@ -82,7 +82,7 @@ const ForgotPassword = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/change-password', { emailId, newPassword });
+      const response = await axios.post('https://pepper-paradise-9iol.onrender.com/api/change-password', { emailId, newPassword });
       if (response.data.message === 'Password changed successfully') {
         alert('Password changed successfully');
         window.location.reload();
