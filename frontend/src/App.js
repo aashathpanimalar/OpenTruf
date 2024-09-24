@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -11,6 +10,7 @@ import Cart, { TotalCostContext } from './components/Cart';
 import Address from './components/Address';
 import Payment from './components/Payment';
 import Login from './components/Login';
+import PrivateRoute from './PrivateRoute';  // Import PrivateRoute component
 
 function App() {
   const [cartItems, setCartItems] = useState({});
@@ -26,7 +26,6 @@ function App() {
       setLoggedIn(true);
     } catch (error) {
       console.error('Login error:', error);
-      // Handle login error (show message to user, etc.)
     }
   };
 
@@ -93,45 +92,47 @@ function App() {
               <fieldset id="main2">
                 <Routes>
                   <Route path="/" element={<Login onLogin={handleLogin} />} />
+                  
+                  {/* Protecting all other routes with PrivateRoute */}
                   <Route
                     path="/Ecommerce"
                     element={
-                      
-                        <>
-                          <Navbar cartItemCount={Object.values(cartItems).reduce((a, b) => a + b, 0)} onLogout={handleLogout} />
-                          <div id="body1">
-                            <Category />
-                            <Products onAddToCart={handleAddToCart} cartItems={cartItems} onRemoveFromCart={handleRemoveFromCart} />
-                          </div>
-                          <fieldset id="foot">
-                            <Footer />
-                          </fieldset>
-                        </>
-                      
+                      <PrivateRoute
+                        element={() => (
+                          <>
+                            <Navbar cartItemCount={Object.values(cartItems).reduce((a, b) => a + b, 0)} onLogout={handleLogout} />
+                            <div id="body1">
+                              <Category />
+                              <Products onAddToCart={handleAddToCart} cartItems={cartItems} onRemoveFromCart={handleRemoveFromCart} />
+                            </div>
+                            <fieldset id="foot">
+                              <Footer />
+                            </fieldset>
+                          </>
+                        )}
+                      />
                     }
                   />
                   <Route
                     path="/cart"
                     element={
-                      
-                        <Cart cartItems={cartItems} products={products} onRemoveFromCart={handleRemoveFromCart} />
-                      
+                      <PrivateRoute
+                        element={() => <Cart cartItems={cartItems} products={products} onRemoveFromCart={handleRemoveFromCart} />}
+                      />
                     }
                   />
                   <Route
                     path="/address"
                     element={
-                      
-                        <Address onAddressSelect={setAddress} />
-                      
+                      <PrivateRoute element={() => <Address onAddressSelect={setAddress} />} />
                     }
                   />
                   <Route
                     path="/payment"
                     element={
-                      
-                        <Payment onPaymentMethodSelect={setPaymentMethod} onProceedToPayment={handleProceedToPayment} />
-                      
+                      <PrivateRoute
+                        element={() => <Payment onPaymentMethodSelect={setPaymentMethod} onProceedToPayment={handleProceedToPayment} />}
+                      />
                     }
                   />
                 </Routes>
